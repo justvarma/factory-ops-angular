@@ -1,0 +1,120 @@
+<div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+  <div>
+    <h2 class="text-2xl font-bold text-slate-900 tracking-tight">Security Roles</h2>
+    <p class="text-sm text-slate-500 mt-1">Define permissions and access hierarchies</p>
+  </div>
+  <button 
+    (click)="openAdd()"
+    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-blue-200"
+  >
+    <lucide-angular [name]="Plus" size="18"></lucide-angular>
+    Create Role
+  </button>
+</div>
+
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+  @if (loading) {
+    <div class="col-span-full py-20 text-center">
+      <div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full mx-auto"></div>
+    </div>
+  }
+
+  @for (role of roles; track role.id) {
+    <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-200 hover:shadow-xl transition-all group">
+      <div class="flex items-start justify-between mb-6">
+        <div class="bg-indigo-50 p-3 rounded-2xl text-indigo-600 border border-indigo-100 uppercase font-black text-xs">
+          {{ role.name.substring(0, 1) }}
+        </div>
+        <div class="flex gap-1">
+          <button 
+            (click)="openEdit(role)"
+            class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+          >
+            <lucide-angular [name]="Edit2" size="16"></lucide-angular>
+          </button>
+          <button 
+            (click)="handleDelete(role.id)"
+            class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+          >
+            <lucide-angular [name]="Trash2" size="16"></lucide-angular>
+          </button>
+        </div>
+      </div>
+      
+      <h3 class="text-lg font-bold text-slate-900 mb-2">{{ role.name }}</h3>
+      <p class="text-sm text-slate-500 line-clamp-2 mb-6">{{ role.description || 'Access level definition' }}</p>
+      
+      <div class="pt-4 border-t border-slate-50 flex items-center justify-between">
+        <div class="flex items-center gap-2">
+          <lucide-angular [name]="ShieldCheck" size="14" class="text-indigo-500"></lucide-angular>
+          <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Authorized</span>
+        </div>
+        <span class="text-[10px] bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full font-bold">
+          {{ role._count?.users || 0 }} Users
+        </span>
+      </div>
+    </div>
+  }
+</div>
+
+<!-- Modal -->
+@if (isModalOpen) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+    <div 
+      @modalScale
+      class="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
+    >
+      <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+        <h3 class="text-xl font-bold text-slate-900">{{ editingRole ? 'Edit Role' : 'Create Role' }}</h3>
+        <button (click)="isModalOpen = false" class="p-2 hover:bg-slate-200 rounded-full transition-colors">
+          <lucide-angular [name]="X" size="20"></lucide-angular>
+        </button>
+      </div>
+
+      <form [formGroup]="roleForm" (ngSubmit)="handleSubmit()" class="p-8 space-y-6">
+        @if (error) {
+          <div class="p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm font-medium">
+            {{ error }}
+          </div>
+        }
+
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Role Name</label>
+          <input 
+            formControlName="name"
+            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm transition-all"
+            placeholder="e.g. Quality Manager"
+          />
+        </div>
+
+        <div class="space-y-2">
+          <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Description</label>
+          <textarea 
+            formControlName="description"
+            rows="3"
+            class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm transition-all"
+            placeholder="Describe permissions..."
+          ></textarea>
+        </div>
+
+        <div class="flex gap-4 pt-4">
+          <button 
+            type="button"
+            (click)="isModalOpen = false"
+            class="flex-1 py-3 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+          >
+            Cancel
+          </button>
+          <button 
+            type="submit"
+            [disabled]="roleForm.invalid"
+            class="flex-1 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-200"
+          >
+            <lucide-angular [name]="Save" size="18"></lucide-angular>
+            {{ editingRole ? 'Update Role' : 'Create Role' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

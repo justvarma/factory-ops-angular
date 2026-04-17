@@ -1,0 +1,6 @@
+{
+  "name": "Factory Ops Dashboard",
+  "description": "A comprehensive factory operations dashboard for managing machines, shifts, users, and roles.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
