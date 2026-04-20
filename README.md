@@ -1,117 +1,56 @@
-Here is a clean, structured **README.md** version of your instructions:
+# FactoryOps Dashboard
 
----
+A comprehensive factory operations dashboard for managing machines, shifts, users, and roles. Built with Angular, Next.js (Express), and Prisma.
 
-# Hybrid Angular + Next.js Application Setup
+## Prerequisites
 
-This guide explains how to run the application locally.
+- Node.js (v18 or later)
+- PostgreSQL database
+- npm OR yarn
 
-## 1. Prerequisites
+## Environment Setup
 
-Ensure the following are installed on your system:
+Create a `.env` file in the root directory and add the following variables:
 
-* **Node.js** (v18 or higher)
-* **npm** (comes with Node.js)
-* **Database** (used via Prisma):
+```env
+DATABASE_URL="postgresql://user:password@localhost:5432/factoryops"
+JWT_SECRET="your-super-secret-key"
+```
 
-  * PostgreSQL / MySQL **or**
-  * SQLite (local file)
+## Getting Started
 
----
-
-## 2. Setup Instructions
-
-### Step 1: Install Dependencies
-
-Navigate to the project root directory and run:
+### 1. Install Dependencies
 
 ```bash
 npm install
 ```
 
----
+### 2. Database Migration
 
-### Step 2: Configure Environment Variables
-
-Create a `.env` file in the root directory.
-
-You can copy from `.env.example` and update values:
-
-```env
-# Example .env
-DATABASE_URL="file:./dev.db"
-JWT_SECRET="your-super-secret-key"
-```
-
----
-
-### Step 3: Initialize Database
-
-Generate Prisma client and sync schema:
+Run the Prisma migration to set up your database schema:
 
 ```bash
-npx prisma generate
-npx prisma db push
+npx prisma migrate dev --name init
 ```
 
----
-
-## 3. Running the Application
-
-### Option A: Production Mode (Recommended)
-
-Build and start the unified server:
-
-```bash
-npm run build
-npm start
-```
-
-Access the app at:
-
-```
-http://localhost:3000
-```
-
----
-
-### Option B: Development Mode
-
-For active development:
+### 3. Run the Development Server
 
 ```bash
 npm run dev
 ```
 
-This runs:
+The application will be available at `http://localhost:3000`.
 
-* Angular build in watch mode
-* Next.js development server
+## Scripts
 
----
+- `npm run dev`: Runs the Angular frontend and Next.js backend concurrently.
+- `npm run build`: Builds the application for production.
+- `npm start`: Starts the production server.
+- `npx prisma studio`: Opens the database manager UI.
 
-## 4. Troubleshooting
+## Features
 
-### Port Already in Use
-
-* Ensure port `3000` is free
-* Stop other running applications if needed
-
-### Windows Execution Policy Issues
-
-* Run Command Prompt or PowerShell as **Administrator**
-
-### SQLite Database
-
-* If using:
-
-  ```
-  DATABASE_URL="file:./dev.db"
-  ```
-* Prisma will automatically create the database file during:
-
-```bash
-npx prisma db push
-```
-
----
+- **Dashboard:** Real-time stats and recent activity logging.
+- **User Management:** Role-based access control, security profiles, and process assignment.
+- **Machine Tracking:** Monitor equipment status and specifications.
+- **Shift Scheduling:** Detailed shift patterns with integrated break management and 24-hour cycle enforcement.
