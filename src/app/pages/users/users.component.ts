@@ -36,6 +36,7 @@ export class UsersComponent implements OnInit {
   editingUser: any = null;
   error: string | null = null;
   showPassword = false;
+  showAllPasswords = false;
 
   userForm: FormGroup = this.fb.group({
     username: ['', Validators.required],
