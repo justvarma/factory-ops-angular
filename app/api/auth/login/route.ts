@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
     }
 
-    const isPasswordValid = password === user.password;
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
     if (!isPasswordValid) {
       return NextResponse.json({ error: 'Invalid credentials' }, { status: 401 });
@@ -32,11 +32,11 @@ export async function POST(request: Request) {
     const token = await createToken(authUser);
 
     const response = NextResponse.json({ success: true, user: authUser });
-    
+
     response.cookies.set('auth_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      secure: true, // Always true for SameSite=None
+      sameSite: 'none',
       maxAge: 60 * 60 * 24, // 1 day
       path: '/',
     });

@@ -30,13 +30,14 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const { username, email, mobile_no, password, role_id, doj, process: userProcess } = body;
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await prisma.users.create({
       data: {
         username,
         email,
         mobile_no,
-        password: password,
+        password: hashedPassword,
         role_id: parseInt(role_id),
         doj: doj ? new Date(doj) : null,
         process: userProcess,

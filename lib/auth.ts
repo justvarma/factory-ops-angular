@@ -24,7 +24,14 @@ export async function verifyToken(token: string): Promise<AuthUser | null> {
 
 export async function getAuthUser(): Promise<AuthUser | null> {
   const cookieStore = await cookies();
-  const token = cookieStore.get('auth_token')?.value;
-  if (!token) return null;
-  return verifyToken(token);
+  const token = (await cookieStore).get('auth_token')?.value;
+  if (!token) {
+    console.log('No auth_token found in cookies');
+    return null;
+  }
+  const verified = await verifyToken(token);
+  if (!verified) {
+    console.log('Token verification failed');
+  }
+  return verified;
 }

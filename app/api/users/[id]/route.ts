@@ -4,12 +4,12 @@ import { getAuthUser } from '@/lib/auth';
 import bcrypt from 'bcryptjs';
 
 export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
 ) {
   const authUser = await getAuthUser();
   const { id } = await params;
-  
+
   if (!authUser || authUser.role !== 'Admin') {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
@@ -28,7 +28,7 @@ export async function PATCH(
     };
 
     if (password) {
-      data.password = password;
+      data.password = await bcrypt.hash(password, 10);
     }
 
     const updatedUser = await prisma.users.update({
@@ -43,8 +43,8 @@ export async function PATCH(
 }
 
 export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
 ) {
   const authUser = await getAuthUser();
   const { id } = await params;

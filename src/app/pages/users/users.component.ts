@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
-import { LucideAngularModule, UserPlus, Search, Edit2, Trash2, Filter, X, Save } from 'lucide-angular';
+import { LucideAngularModule, UserPlus, Search, Edit2, Trash2, Filter, X, Save, Eye, EyeOff, Calendar, Phone, Mail } from 'lucide-angular';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { animate, style, transition, trigger } from '@angular/animations';
 import { forkJoin } from 'rxjs';
@@ -35,6 +35,7 @@ export class UsersComponent implements OnInit {
   isModalOpen = false;
   editingUser: any = null;
   error: string | null = null;
+  showPassword = false;
 
   userForm: FormGroup = this.fb.group({
     username: ['', Validators.required],
@@ -53,9 +54,19 @@ export class UsersComponent implements OnInit {
   readonly Filter = Filter;
   readonly X = X;
   readonly Save = Save;
+  readonly Eye = Eye;
+  readonly EyeOff = EyeOff;
+  readonly Calendar = Calendar;
+  readonly Phone = Phone;
+  readonly Mail = Mail;
 
   ngOnInit() {
     this.fetchData();
+  }
+
+  isSpecialManager(roleId: any) {
+    const role = this.roles.find(r => r.id == roleId);
+    return role?.name === 'PTC Manager' || role?.name === 'Quality Manager';
   }
 
   fetchData() {
@@ -74,15 +85,16 @@ export class UsersComponent implements OnInit {
   }
 
   get filteredUsers() {
-    return this.users.filter(u => 
-      u.username.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-      u.email?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
-      u.process?.toLowerCase().includes(this.searchTerm.toLowerCase())
+    return this.users.filter(u =>
+        u.username.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        u.email?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+        u.process?.toLowerCase().includes(this.searchTerm.toLowerCase())
     );
   }
 
   openAdd() {
     this.editingUser = null;
+    this.showPassword = false;
     this.userForm.reset();
     this.userForm.get('password')?.setValidators(Validators.required);
     this.isModalOpen = true;
@@ -90,6 +102,7 @@ export class UsersComponent implements OnInit {
 
   openEdit(user: any) {
     this.editingUser = user;
+    this.showPassword = false;
     this.userForm.patchValue({
       username: user.username,
       email: user.email,

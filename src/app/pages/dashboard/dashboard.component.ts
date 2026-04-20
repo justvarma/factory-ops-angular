@@ -13,8 +13,8 @@ import { forkJoin } from 'rxjs';
   styles: []
 })
 export class DashboardComponent implements OnInit {
-  public http = inject(HttpClient);
-  public router = inject(Router);
+  private http = inject(HttpClient);
+  private router = inject(Router);
 
   readonly Users = Users;
   readonly Cpu = Cpu;
@@ -58,7 +58,7 @@ export class DashboardComponent implements OnInit {
             title: 'New user registered',
             description: `${u.username} joined as ${u.role?.name || 'User'}`,
             time: 'Recently',
-            icon: 'UserPlus',
+            icon: this.UserPlus,
             color: 'text-blue-500',
             bg: 'bg-blue-50'
           });
@@ -70,13 +70,24 @@ export class DashboardComponent implements OnInit {
             title: 'Machine updated',
             description: `${m.type} configuration changed`,
             time: 'Today',
-            icon: 'Cpu',
+            icon: this.Cpu,
             color: 'text-amber-500',
             bg: 'bg-amber-50'
           });
         });
 
         this.recentActivity = activities;
+        if (this.recentActivity.length === 0) {
+          this.recentActivity.push({
+            type: 'system',
+            title: 'System Initialized',
+            description: 'Factory operations tracking started successfully.',
+            time: 'System',
+            icon: this.Activity,
+            color: 'text-emerald-500',
+            bg: 'bg-emerald-50'
+          });
+        }
         this.loading = false;
       },
       error: (err) => {
@@ -88,5 +99,13 @@ export class DashboardComponent implements OnInit {
 
   viewAll() {
     this.router.navigate(['/dashboard/users']);
+  }
+
+  navigateToUsers() {
+    this.router.navigate(['/dashboard/users']);
+  }
+
+  navigateToMachines() {
+    this.router.navigate(['/dashboard/machines']);
   }
 }

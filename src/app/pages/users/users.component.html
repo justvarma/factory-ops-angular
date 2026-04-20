@@ -1,203 +1,248 @@
 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
-  <div>
-    <h2 class="text-2xl font-bold text-slate-900 tracking-tight">System Users</h2>
-    <p class="text-sm text-slate-500 mt-1">Manage personnel access and profiles</p>
-  </div>
-  <button 
-    (click)="openAdd()"
-    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-blue-200"
-  >
-    <lucide-angular [name]="UserPlus" size="18"></lucide-angular>
-    Add New User
-  </button>
+    <div>
+        <h2 class="text-2xl font-bold text-slate-900 tracking-tight">System Users</h2>
+        <p class="text-sm text-slate-500 mt-1">Manage personnel access and profiles</p>
+    </div>
+    <button
+            (click)="openAdd()"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2.5 rounded-xl font-semibold text-sm flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-blue-200"
+    >
+        <lucide-angular [name]="UserPlus" size="18"></lucide-angular>
+        Add New User
+    </button>
 </div>
 
 <div class="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
-  <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row gap-4">
-    <div class="relative flex-1">
-      <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-        <lucide-angular [name]="Search" size="18"></lucide-angular>
-      </div>
-      <input 
-        type="text" 
-        [(ngModel)]="searchTerm"
-        placeholder="Search by name, email, or process..." 
-        class="w-full pl-12 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 text-sm transition-all"
-      />
+    <div class="p-6 border-b border-slate-100 bg-slate-50/50 flex flex-col sm:flex-row gap-4">
+        <div class="relative flex-1">
+            <div class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                <lucide-angular [name]="Search" size="18"></lucide-angular>
+            </div>
+            <input
+                    type="text"
+                    [(ngModel)]="searchTerm"
+                    placeholder="Search by name, email, or process..."
+                    class="w-full pl-12 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/5 focus:border-blue-500 text-sm transition-all"
+            />
+        </div>
     </div>
-  </div>
 
-  <div class="overflow-x-auto">
-    <table class="w-full text-left">
-      <thead>
-        <tr class="bg-slate-50/50 text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
-          <th class="px-8 py-4">User Details</th>
-          <th class="px-8 py-4">Security Role</th>
-          <th class="px-8 py-4">Process</th>
-          <th class="px-8 py-4 text-center">Actions</th>
-        </tr>
-      </thead>
-      <tbody class="divide-y divide-slate-100">
-        @for (user of filteredUsers; track user.id) {
-          <tr class="hover:bg-slate-50/50 transition-all group">
-            <td class="px-8 py-5">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">
-                  {{ user.username.substring(0, 2).toUpperCase() }}
-                </div>
-                <div>
-                  <div class="text-sm font-bold text-slate-900">{{ user.username }}</div>
-                  <div class="text-xs text-slate-500">{{ user.email }}</div>
-                </div>
-              </div>
-            </td>
-            <td class="px-8 py-5">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+            <tr class="bg-slate-50/50 text-slate-400 text-[10px] font-bold uppercase tracking-widest border-b border-slate-100">
+                <th class="px-8 py-4">User Details</th>
+                <th class="px-8 py-4">Security Role</th>
+                <th class="px-8 py-4">Contact Info</th>
+                <th class="px-8 py-4">DOJ</th>
+                <th class="px-8 py-4">Process</th>
+                <th class="px-8 py-4 text-center">Actions</th>
+            </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @for (user of filteredUsers; track user.id) {
+                    <tr class="hover:bg-slate-50/50 transition-all group">
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-sm">
+                                    {{ user.username.substring(0, 2).toUpperCase() }}
+                                </div>
+                                <div>
+                                    <div class="text-sm font-bold text-slate-900">{{ user.username }}</div>
+                                    <div class="text-[10px] text-slate-400 uppercase font-bold tracking-wider">ID: {{ user.id.substring(0, 8) }}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-8 py-5">
               <span class="px-3 py-1 bg-slate-100 text-slate-600 rounded-full text-[10px] font-bold uppercase tracking-wider">
                 {{ user.role?.name || 'N/A' }}
               </span>
-            </td>
-            <td class="px-8 py-5">
-              <div class="text-sm text-slate-600 font-medium">
-                {{ user.process || 'General' }}
-              </div>
-            </td>
-            <td class="px-8 py-5">
-              <div class="flex items-center justify-center gap-2">
-                <button 
-                  (click)="openEdit(user)"
-                  class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-                >
-                  <lucide-angular [name]="Edit2" size="16"></lucide-angular>
-                </button>
-                <button 
-                  (click)="handleDelete(user.id)"
-                  class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                >
-                  <lucide-angular [name]="Trash2" size="16"></lucide-angular>
-                </button>
-              </div>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
-    
-    @if (loading) {
-      <div class="py-20 flex flex-col items-center justify-center text-slate-400 gap-4">
-        <div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
-        <p class="text-xs font-bold uppercase tracking-widest">Accessing Directory...</p>
-      </div>
-    }
+                        </td>
+                        <td class="px-8 py-5">
+                            <div class="space-y-1">
+                                <div class="flex items-center gap-1.5 text-xs text-slate-500">
+                                    <lucide-angular [name]="Mail" size="12" class="text-slate-400"></lucide-angular>
+                                    {{ user.email }}
+                                </div>
+                                <div class="flex items-center gap-1.5 text-xs text-slate-500">
+                                    <lucide-angular [name]="Phone" size="12" class="text-slate-400"></lucide-angular>
+                                    {{ user.mobile_no || 'N/A' }}
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-8 py-5">
+                            <div class="flex items-center gap-2 text-xs text-slate-600 font-medium">
+                                <lucide-angular [name]="Calendar" size="14" class="text-slate-400"></lucide-angular>
+                                {{ user.doj | date:'mediumDate' }}
+                            </div>
+                        </td>
+                        <td class="px-8 py-5">
+                            @if (user.role?.name === 'PTC Manager' || user.role?.name === 'Quality Manager') {
+                                <div class="text-sm text-slate-600 font-medium bg-blue-50 px-3 py-1 rounded-lg border border-blue-100 inline-block">
+                                    {{ user.process || 'General' }}
+                                </div>
+                            } @else {
+                                <span class="text-slate-300 text-xs italic">N/A</span>
+                            }
+                        </td>
+                        <td class="px-8 py-5">
+                            <div class="flex items-center justify-center gap-2">
+                                <button
+                                        (click)="openEdit(user)"
+                                        class="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
+                                >
+                                    <lucide-angular [name]="Edit2" size="16"></lucide-angular>
+                                </button>
+                                <button
+                                        (click)="handleDelete(user.id)"
+                                        class="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                                >
+                                    <lucide-angular [name]="Trash2" size="16"></lucide-angular>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
 
-    @if (!loading && filteredUsers.length === 0) {
-      <div class="py-20 text-center text-slate-400">
-        <p class="text-sm">No users found matching your criteria.</p>
-      </div>
-    }
-  </div>
+        @if (loading) {
+            <div class="py-20 flex flex-col items-center justify-center text-slate-400 gap-4">
+                <div class="animate-spin w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full"></div>
+                <p class="text-xs font-bold uppercase tracking-widest">Accessing Directory...</p>
+            </div>
+        }
+
+        @if (!loading && filteredUsers.length === 0) {
+            <div class="py-20 text-center text-slate-400">
+                <p class="text-sm">No users found matching your criteria.</p>
+            </div>
+        }
+    </div>
 </div>
 
 <!-- Modal -->
 @if (isModalOpen) {
-  <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
-    <div 
-      @modalScale
-      class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-100"
-    >
-      <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-        <h3 class="text-xl font-bold text-slate-900">{{ editingUser ? 'Edit User' : 'Add New User' }}</h3>
-        <button (click)="isModalOpen = false" class="p-2 hover:bg-slate-200 rounded-full transition-colors">
-          <lucide-angular [name]="X" size="20"></lucide-angular>
-        </button>
-      </div>
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm">
+        <div
+                @modalScale
+                class="bg-white rounded-3xl shadow-2xl w-full max-w-lg overflow-hidden border border-slate-100"
+        >
+            <div class="p-6 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                <h3 class="text-xl font-bold text-slate-900">{{ editingUser ? 'Edit User' : 'Add New User' }}</h3>
+                <button (click)="isModalOpen = false" class="p-2 hover:bg-slate-200 rounded-full transition-colors">
+                    <lucide-angular [name]="X" size="20"></lucide-angular>
+                </button>
+            </div>
 
-      <form [formGroup]="userForm" (ngSubmit)="handleSubmit()" class="p-8 space-y-6">
-        @if (error) {
-          <div class="p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm font-medium">
-            {{ error }}
-          </div>
-        }
+            <form [formGroup]="userForm" (ngSubmit)="handleSubmit()" class="p-8 space-y-6">
+                @if (error) {
+                    <div class="p-4 bg-red-50 border border-red-100 text-red-600 rounded-xl text-sm font-medium">
+                        {{ error }}
+                    </div>
+                }
 
-        <div class="grid grid-cols-2 gap-6">
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Username</label>
-            <input 
-              formControlName="username"
-              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm transition-all"
-              placeholder="Full name"
-            />
-          </div>
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Email</label>
-            <input 
-              formControlName="email"
-              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm transition-all"
-              placeholder="email@example.com"
-            />
-          </div>
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Username</label>
+                        <input
+                                formControlName="username"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm transition-all"
+                                placeholder="Full name"
+                        />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Email</label>
+                        <input
+                                formControlName="email"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm transition-all"
+                                placeholder="email@example.com"
+                        />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center justify-between">
+                            Password
+                            <button
+                                    type="button"
+                                    (click)="showPassword = !showPassword"
+                                    class="text-blue-600 hover:text-blue-700 font-bold flex items-center gap-1 transition-colors"
+                            >
+                                <lucide-angular [name]="showPassword ? EyeOff : Eye" size="14"></lucide-angular>
+                                {{ showPassword ? 'Hide' : 'Show' }}
+                            </button>
+                        </label>
+                        <input
+                                [type]="showPassword ? 'text' : 'password'"
+                                formControlName="password"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm transition-all"
+                                placeholder="{{ editingUser ? 'Leave blank to keep same' : 'Secure password' }}"
+                        />
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Mobile</label>
+                        <input
+                                formControlName="mobile_no"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm transition-all"
+                                placeholder="+1..."
+                        />
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-2 gap-6">
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Role</label>
+                        <select
+                                formControlName="role_id"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm transition-all"
+                        >
+                            <option value="">Select Role</option>
+                            @for (role of roles; track role.id) {
+                                <option [value]="role.id">{{ role.name }}</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="space-y-2">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Date of Joining</label>
+                        <input
+                                type="date"
+                                formControlName="doj"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm transition-all"
+                        />
+                    </div>
+                </div>
+
+                @if (isSpecialManager(userForm.get('role_id')?.value)) {
+                    <div class="space-y-2 animate-in slide-in-from-top-2 duration-300">
+                        <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Process / Department</label>
+                        <input
+                                formControlName="process"
+                                class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm transition-all"
+                                placeholder="e.g. Quality, PTC, etc."
+                        />
+                    </div>
+                }
+
+                <div class="flex gap-4 pt-4">
+                    <button
+                            type="button"
+                            (click)="isModalOpen = false"
+                            class="flex-1 py-3 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
+                    >
+                        Cancel
+                    </button>
+                    <button
+                            type="submit"
+                            [disabled]="userForm.invalid"
+                            class="flex-1 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-200"
+                    >
+                        <lucide-angular [name]="Save" size="18"></lucide-angular>
+                        {{ editingUser ? 'Update User' : 'Create User' }}
+                    </button>
+                </div>
+            </form>
         </div>
-
-        <div class="grid grid-cols-2 gap-6">
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Password</label>
-            <input 
-              type="password"
-              formControlName="password"
-              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm transition-all"
-              placeholder="{{ editingUser ? 'Leave blank to keep same' : 'Secure password' }}"
-            />
-          </div>
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Mobile</label>
-            <input 
-              formControlName="mobile_no"
-              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm transition-all"
-              placeholder="+1..."
-            />
-          </div>
-        </div>
-
-        <div class="grid grid-cols-2 gap-6">
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Role</label>
-            <select 
-              formControlName="role_id"
-              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm transition-all"
-            >
-              <option value="">Select Role</option>
-              @for (role of roles; track role.id) {
-                <option [value]="role.id">{{ role.name }}</option>
-              }
-            </select>
-          </div>
-          <div class="space-y-2">
-            <label class="text-xs font-bold text-slate-400 uppercase tracking-widest">Process / Department</label>
-            <input 
-              formControlName="process"
-              class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-4 focus:ring-blue-500/10 focus:border-blue-500 text-sm transition-all"
-              placeholder="Quality, PTC, etc."
-            />
-          </div>
-        </div>
-
-        <div class="flex gap-4 pt-4">
-          <button 
-            type="button"
-            (click)="isModalOpen = false"
-            class="flex-1 py-3 text-sm font-bold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-xl transition-all"
-          >
-            Cancel
-          </button>
-          <button 
-            type="submit"
-            [disabled]="userForm.invalid"
-            class="flex-1 py-3 text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-200"
-          >
-            <lucide-angular [name]="Save" size="18"></lucide-angular>
-            {{ editingUser ? 'Update User' : 'Create User' }}
-          </button>
-        </div>
-      </form>
     </div>
-  </div>
 }
