@@ -51,13 +51,17 @@ export async function POST(request: Request) {
     const startMin = toMinutes(start_time);
     const endMinOrig = toMinutes(end_time);
     let endMin = endMinOrig;
-    
+
     const st_flag = startMin < 6 * 60;
-    const et_flag = endMinOrig < startMin;
-    
+    // If end_time is same as start_time, we treat it as 24h shift
+    const et_flag = endMinOrig <= startMin;
+
     if (et_flag) endMin += 24 * 60;
 
     const shiftDuration = endMin - startMin;
+    if (shiftDuration === 0) {
+      throw new Error('Shift duration must be greater than 0');
+    }
 
     // Check for global overlap with existing shifts
     const existingShifts = await prisma.shift.findMany();
@@ -80,18 +84,33 @@ export async function POST(request: Request) {
     }
 
     let totalBreakMin = 0;
-    const processedBreaks = breaks?.map((b: any) => {
+    const breakPortions: { start: number; end: number; type: string }[] = [];
+
+    const processedBreaks = breaks?.map((b: any, index: number) => {
       const bStart = toMinutes(b.break_start);
       let bEnd = toMinutes(b.break_end);
-      
+
       // Adjust break times relative to shift start
       let adjBStart = bStart;
       let adjBEnd = bEnd;
       if (adjBStart < startMin) adjBStart += 24 * 60;
       if (adjBEnd < startMin) adjBEnd += 24 * 60;
+
+      // If after adjustment bEnd is still before/at bStart, it means it crosses the next midnight
       if (adjBEnd <= adjBStart) adjBEnd += 24 * 60;
 
+      // Validation: Break must be within shift
+      if (adjBStart < startMin || adjBEnd > endMin) {
+        throw new Error(`Break ${index + 1} (${b.break_type}) is outside of shift hours (${start_time} - ${end_time})`);
+      }
+
+      // Validation: Break duration must be positive
+      if (adjBEnd <= adjBStart) {
+        throw new Error(`Break ${index + 1} (${b.break_type}) has invalid duration`);
+      }
+
       totalBreakMin += (adjBEnd - adjBStart);
+      breakPortions.push({ start: adjBStart, end: adjBEnd, type: b.break_type });
 
       return {
         break_start: toISOTime(b.break_start),
@@ -99,6 +118,14 @@ export async function POST(request: Request) {
         break_type: b.break_type === 'Other' ? b.custom_reason : b.break_type,
       };
     });
+
+    // Check for overlapping breaks
+    breakPortions.sort((a, b) => a.start - b.start);
+    for (let i = 0; i < breakPortions.length - 1; i++) {
+      if (breakPortions[i].end > breakPortions[i + 1].start) {
+        throw new Error(`Breaks overlap: ${breakPortions[i].type} and ${breakPortions[i + 1].type}`);
+      }
+    }
 
     const actualWorkMin = Math.max(0, shiftDuration - totalBreakMin);
     const formattedDuration = formatInterval(actualWorkMin);
@@ -119,8 +146,8 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json(newShift);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Create shift error:', error);
-    return NextResponse.json({ error: 'Failed to create shift' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Failed to create shift' }, { status: 400 });
   }
 }

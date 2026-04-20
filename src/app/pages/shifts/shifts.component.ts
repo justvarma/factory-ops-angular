@@ -100,7 +100,7 @@ export class ShiftsComponent implements OnInit {
     this.editingShift = null;
     const lastShift = this.shifts[this.shifts.length - 1];
     const nextNum = this.shifts.length + 1;
-    
+
     this.shiftForm.reset({
       name: `Shift ${nextNum}`,
       start_time: lastShift ? this.formatTime(lastShift.end_time) : '',
@@ -112,7 +112,7 @@ export class ShiftsComponent implements OnInit {
 
   openEdit(shift: any) {
     this.editingShift = shift;
-    
+
     // Find previous shift in sequence
     const currentIndex = this.shifts.findIndex(s => s.id === shift.id);
     const prevShift = currentIndex > 0 ? this.shifts[currentIndex - 1] : null;
@@ -166,36 +166,6 @@ export class ShiftsComponent implements OnInit {
 
     (this.http as any)[method](url, payload).subscribe({
       next: (saved: any) => {
-        // Handle next shift update in DB if we edited this one
-        if (this.editingShift) {
-          const currentIndex = this.shifts.findIndex(s => s.id === this.editingShift.id);
-          const nextShift = this.shifts[currentIndex + 1];
-          if (nextShift) {
-            const nextPayload = {
-              ...nextShift,
-              start_time: payload.end_time,
-              // We must format existing breaks for the update
-              breaks: (nextShift.renamedbreak || []).map((b: any) => ({
-                id: b.id,
-                break_start: this.formatTime(b.break_start),
-                break_end: this.formatTime(b.break_end),
-                break_type: b.break_type
-              }))
-            };
-            this.http.patch(`/api/shifts/${nextShift.id}`, nextPayload).subscribe({
-              next: () => {
-                this.isModalOpen = false;
-                this.fetchData();
-              },
-              error: () => {
-                // Even if next shift fails, we at least saved this one
-                this.isModalOpen = false;
-                this.fetchData();
-              }
-            });
-            return;
-          }
-        }
         this.isModalOpen = false;
         this.fetchData();
       },

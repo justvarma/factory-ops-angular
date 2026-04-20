@@ -25,30 +25,38 @@ const formatInterval = (minutes: number) => {
 };
 
 export async function PATCH(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
 ) {
   const authUser = await getAuthUser();
   const { id } = await params;
-  
+
   if (!authUser || (authUser.role !== 'Admin' && authUser.role !== 'Manager')) {
     return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
   }
 
   try {
-    const body = await request.json();
+    const text = await request.text();
+    if (!text) {
+      return NextResponse.json({ error: 'Request body is empty' }, { status: 400 });
+    }
+    const body = JSON.parse(text);
     const { name, start_time, end_time, breaks } = body;
 
     const startMin = toMinutes(start_time);
     const endMinOrig = toMinutes(end_time);
     let endMin = endMinOrig;
-    
+
     const st_flag = startMin < 6 * 60;
-    const et_flag = endMinOrig < startMin;
-    
+    // If end_time is same as start_time, we treat it as 24h shift
+    const et_flag = endMinOrig <= startMin;
+
     if (et_flag) endMin += 24 * 60;
 
     const shiftDuration = endMin - startMin;
+    if (shiftDuration === 0) {
+      throw new Error('Shift duration must be greater than 0');
+    }
 
     // Check for global overlap with other shifts
     const existingShifts = await prisma.shift.findMany({
@@ -71,17 +79,31 @@ export async function PATCH(
     }
 
     let totalBreakMin = 0;
-    const processedBreaks = breaks?.map((b: any) => {
+    const breakPortions: { start: number; end: number; type: string }[] = [];
+
+    const processedBreaks = breaks?.map((b: any, index: number) => {
       const bStart = toMinutes(b.break_start);
       let bEnd = toMinutes(b.break_end);
-      
+
       let adjBStart = bStart;
       let adjBEnd = bEnd;
       if (adjBStart < startMin) adjBStart += 24 * 60;
       if (adjBEnd < startMin) adjBEnd += 24 * 60;
+
       if (adjBEnd <= adjBStart) adjBEnd += 24 * 60;
 
+      // Validation: Break must be within shift
+      if (adjBStart < startMin || adjBEnd > endMin) {
+        throw new Error(`Break ${index + 1} (${b.break_type}) is outside of shift hours (${start_time} - ${end_time})`);
+      }
+
+      // Validation: Break duration must be positive
+      if (adjBEnd <= adjBStart) {
+        throw new Error(`Break ${index + 1} (${b.break_type}) has invalid duration`);
+      }
+
       totalBreakMin += (adjBEnd - adjBStart);
+      breakPortions.push({ start: adjBStart, end: adjBEnd, type: b.break_type });
 
       return {
         break_start: toISOTime(b.break_start),
@@ -89,6 +111,14 @@ export async function PATCH(
         break_type: b.break_type === 'Other' ? b.custom_reason : b.break_type,
       };
     });
+
+    // Check for overlapping breaks
+    breakPortions.sort((a, b) => a.start - b.start);
+    for (let i = 0; i < breakPortions.length - 1; i++) {
+      if (breakPortions[i].end > breakPortions[i + 1].start) {
+        throw new Error(`Breaks overlap: ${breakPortions[i].type} and ${breakPortions[i + 1].type}`);
+      }
+    }
 
     const actualWorkMin = Math.max(0, shiftDuration - totalBreakMin);
     const formattedDuration = formatInterval(actualWorkMin);
@@ -129,7 +159,7 @@ export async function PATCH(
         if (nextShift) {
           const nextStartMin = endMinOrig; // Next shift starts at current end
           const nextEndMinOrig = toMinutes(nextShift.end_time);
-          
+
           const next_st_flag = nextStartMin < 6 * 60;
           const next_et_flag = nextEndMinOrig < nextStartMin;
 
@@ -148,15 +178,15 @@ export async function PATCH(
     });
 
     return NextResponse.json(updatedShift);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Update shift error:', error);
-    return NextResponse.json({ error: 'Failed to update shift' }, { status: 500 });
+    return NextResponse.json({ error: error.message || 'Failed to update shift' }, { status: 400 });
   }
 }
 
 export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
+    request: Request,
+    { params }: { params: Promise<{ id: string }> }
 ) {
   const authUser = await getAuthUser();
   const { id } = await params;
