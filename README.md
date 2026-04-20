@@ -1,5 +1,3 @@
-Here is a revised version of your README with the exact execution flow, constraints, and operational notes you specified.
-
 ---
 
 # FactoryOps Dashboard
