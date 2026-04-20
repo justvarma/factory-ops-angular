@@ -1,29 +1,41 @@
-Here is a clean, structured **README.md** version of your instructions:
+---
+
+# FactoryOps Dashboard
+
+A factory operations dashboard for managing machines, shifts, users, and roles. Built with Angular (UI), Next.js API routes (backend), and Prisma ORM.
 
 ---
 
-# Hybrid Angular + Next.js Application Setup
+## Prerequisites
 
-This guide explains how to run the application locally.
-
-## 1. Prerequisites
-
-Ensure the following are installed on your system:
-
-* **Node.js** (v18 or higher)
-* **npm** (comes with Node.js)
-* **Database** (used via Prisma):
-
-  * PostgreSQL / MySQL **or**
-  * SQLite (local file)
+* Node.js (v18 or later)
+* PostgreSQL database
+* npm or yarn
 
 ---
 
-## 2. Setup Instructions
+## Environment Setup
 
-### Step 1: Install Dependencies
+Create a `.env` file in the root directory and update the values accordingly:
 
-Navigate to the project root directory and run:
+```env
+DATABASE_URL="postgresql://<username>:<password>@<host>:5432/<database_name>"
+JWT_SECRET="your-secret-key"
+```
+
+**Notes:**
+
+* Replace `DATABASE_URL` with your actual PostgreSQL connection string.
+* Set `JWT_SECRET` to any secure random string.
+* Ensure the database exists before running migrations.
+
+---
+
+## Setup & Execution Flow
+
+Follow this sequence strictly.
+
+### 1. Install Dependencies
 
 ```bash
 npm install
@@ -31,87 +43,120 @@ npm install
 
 ---
 
-### Step 2: Configure Environment Variables
+### 2. Fix Vulnerabilities (Important)
 
-Create a `.env` file in the root directory.
+After installation, you will typically see ~20 vulnerabilities.
 
-You can copy from `.env.example` and update values:
-
-```env
-# Example .env
-DATABASE_URL="file:./dev.db"
-JWT_SECRET="your-super-secret-key"
-```
-
----
-
-### Step 3: Initialize Database
-
-Generate Prisma client and sync schema:
+Run:
 
 ```bash
-npx prisma generate
-npx prisma db push
+npm audit fix
 ```
 
----
+This should reduce them (e.g., ~16 remaining).
 
-## 3. Running the Application
-
-### Option A: Production Mode (Recommended)
-
-Build and start the unified server:
+**Do NOT run:**
 
 ```bash
-npm run build
-npm start
+npm audit fix --force
 ```
 
-Access the app at:
-
-```
-http://localhost:3000
-```
+Using `--force` may break dependencies and the project.
 
 ---
 
-### Option B: Development Mode
+### 3. Database Setup
 
-For active development:
+Before running the project, verify the schema:
+
+* Check:
+
+```
+prisma/schema.prisma
+```
+
+This defines:
+
+* Tables
+* Relationships
+* Data types
+
+Then run migration:
+
+```bash
+npx prisma migrate dev --name init
+```
+
+If working in a team setup:
+
+* Pull latest changes
+* Ensure schema is in sync
+* Then migrate
+
+---
+
+### 4. Run the Application
 
 ```bash
 npm run dev
 ```
 
-This runs:
-
-* Angular build in watch mode
-* Next.js development server
-
 ---
 
-## 4. Troubleshooting
+## Expected Behavior (Important)
 
-### Port Already in Use
+When you run the project:
 
-* Ensure port `3000` is free
-* Stop other running applications if needed
+* First, backend starts → runs on:
 
-### Windows Execution Policy Issues
-
-* Run Command Prompt or PowerShell as **Administrator**
-
-### SQLite Database
-
-* If using:
-
-  ```
-  DATABASE_URL="file:./dev.db"
-  ```
-* Prisma will automatically create the database file during:
-
-```bash
-npx prisma db push
+```
+http://localhost:3001
 ```
 
+* Then frontend starts → runs on:
+
+```
+http://localhost:3000
+```
+
+Always open:
+
+```
+http://localhost:3000
+```
+
+This is the main dashboard UI.
+
 ---
+
+## Scripts
+
+* `npm run dev` → Runs Angular frontend + Next.js backend concurrently
+* `npm run build` → Builds for production
+* `npm start` → Starts production server
+* `npx prisma studio` → Opens DB UI
+
+---
+
+## Features
+
+* Dashboard with real-time stats and activity logs
+* User management with role-based access
+* Machine tracking and monitoring
+* Shift scheduling with break handling and 24-hour cycles
+
+---
+
+## Summary of Critical Points
+
+* Run `npm install` first
+* Run `npm audit fix` (never use `--force`)
+* Update `.env` correctly
+* Verify `schema.prisma` before migration
+* Run migrations before starting
+* Backend starts on **3001**, frontend on **3000**
+* Always use **3000** to access the app
+
+---
+
+If you want, I can also add a troubleshooting section (common Angular + Prisma + Next.js errors like the one you hit earlier).
