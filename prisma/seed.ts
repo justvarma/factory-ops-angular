@@ -116,6 +116,13 @@ async function main() {
   }
 
   console.log('Seed data created successfully');
+
+  // Reset sequences to prevent unique constraint errors after seeding with explicit IDs
+  await prisma.$executeRaw`SELECT setval('role_id_seq', coalesce((select max(id) from "role"), 1), true)`;
+  await prisma.$executeRaw`SELECT setval('machine_id_seq', coalesce((select max(id) from "machine"), 1), true)`;
+  await prisma.$executeRaw`SELECT setval('shift_id_seq', coalesce((select max(id) from "shift"), 1), true)`;
+  await prisma.$executeRaw`SELECT setval('break_id_seq', coalesce((select max(id) from "break"), 1), true)`;
+  
 }
 
 main()
